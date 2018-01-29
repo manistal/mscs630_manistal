@@ -17,9 +17,9 @@ class Driver {
     while (input.hasNext()) {
       long a = input.nextLong();
       long b = input.nextLong();
-      long r = euclidAlg(a, b);
+      long gcd = euclidAlg(a, b);
 
-      System.out.println(r);
+      System.out.println(gcd);
     }
 
     input.close();
@@ -35,9 +35,9 @@ class Driver {
   static long euclidAlg(long a, long b) {
     /** The Division Algorithm 
      [Intro to Cryptography by Stanoyevitch]
-     a = qd + r
-     q = floor(a/d)
-     r = a - qd
+     a = qb + r
+     q = floor(a/b)
+     r = a - qb
     */
 
     // Satisfy the Assumption that A >= B
