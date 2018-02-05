@@ -68,16 +68,46 @@
 - Input: A pair of integers a and b not both zero
 - Output: The GCD of the inputs
 
+- Extended version of the Euclidian Algorithm?
+
+- Recap
+    - Relatively prime numbers (GCD of the two numbers is 1)
+    - Any number can be broken down into prime factors
+    - Any number can be expressed as prime numbers raised to a power
+
+#### Consequence of the Euclidian Algorithm 
+
+- Let GCD of non-zero integers a and b:
+    `d = GCD(a, b)`
+
+- If there exists integers x and y such that:
+    `d = ax + by`
+
+- In the special case that a and b are relatively prime
+    `1 = ax + by` 
+
+#### Euclid's Lemma
+
+- Suppose that P is prime, and that a and b are integers:
+    - If p|ab then p|a or p|b
 
 
+### Congruences
+
+- a is congruent to b(mod m) if m|(a - b)
+- The number m is called the modulus of the congruencey 
 
 
+- Relfexivity: a is congruent with a for any integer a
+- Symmetry: a is congruent with b then b is congruent with a for any inetgers a and b
+- Transitivity: if a is congruent with b and b is congruent with c, then c is congruent with a
 
+- if m is a positive integer (modulus) and a, b are both integers
+    - then a is congruenct with b (mod m) if a and b both have the same remainder when divided by m
 
+### Modular Arithmetic 
 
-
-
-
-
+- Zm = { 0, 1, 2, ... m - 1 }
+- where Zm is the set of remainders when dividing by m 
 
     
