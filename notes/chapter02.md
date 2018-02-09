@@ -110,4 +110,14 @@
 - Zm = { 0, 1, 2, ... m - 1 }
 - where Zm is the set of remainders when dividing by m 
 
+## Simplification of Congruences
+
+- If a divides b, then any congruence where  ax is congruent with c(mod b) will also be a congruence of ax = c(mod a)
+- This means you can simplify any redudant congruences in a system of equations
     
+## Chinese Remainder Theorm 
+
+- A system of congruences of n1, n2, n3 which are relatively prime, any integers b1, b2, b3 where 
+    `bn mod(nn)` all have a unique modulo X 
+
+- Provides to us that a unique solution is possible
