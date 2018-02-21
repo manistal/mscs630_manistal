@@ -21,7 +21,7 @@ class Determinant {
     int[][] matrix = new int[matrix_size][matrix_size];
 
     for (int row = 0; row < matrix_size; row++) {
-      for (int col = 0; col < matrix_size; row++) {
+      for (int col = 0; col < matrix_size; col++) {
         matrix[row][col] = input.nextInt();
       }
     }
@@ -37,19 +37,43 @@ class Determinant {
     int matrix_size = matrix.length;
     int determinant = 0;
 
+    // *Special Case* Matrix of Size 1
+    //  Determinant is always the value of the only entry
     if (matrix_size == 1) {
-      return matrix[0][0];
+      determinant = matrix[0][0];
     }
 
+    // *Special Case* Matrix of Size 2
+    //  Determinant is given by the base determinant formula 
+    //  Product of the primary diagonal less the product of the off diagonal
     else if (matrix_size == 2) {
-      return ((matrix[0][0]*matrix[1][1]) - (matrix[0][1]*matrix[1][0]));
+      determinant = ((matrix[0][0]*matrix[1][1]) - (matrix[0][1]*matrix[1][0]));
     }
 
+    // *Recursive Case* Matrix of any size greater than 2
+    // 
     else {
-      return det;
+      int cofactor_matrix_size = matrix_size - 1;
+
+      // For each column along the first row
+      for (int cofactor_index = 0; cofactor_index < matrix_size; cofactor_index++) {
+        int[][] cofactor_matrix = new int[cofactor_matrix_size][cofactor_matrix_size];
+
+        // Skip the first row always, skip the active column 
+        for (int row = 0; row < cofactor_matrix_size; row++) {
+          for (int column = 0; column < cofactor_matrix_size; column++) {
+            if (column == cofactor_index) continue;
+
+            cofactor_matrix[row][column] = matrix[row+1][column];
+          }
+        }
+
+        determinant += (Math.pow(-1, cofactor_index)) * cofModDet(modulo, cofactor_matrix);
+      }
+
     }
 
-    return det;
+    return determinant % modulo; 
   }
 
 
