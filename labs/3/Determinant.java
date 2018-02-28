@@ -59,23 +59,24 @@ class Determinant {
       for (int cofactor_index = 0; cofactor_index < matrix_size; cofactor_index++) {
         int[][] cofactor_matrix = new int[cofactor_matrix_size][cofactor_matrix_size];
 
-        // Skip the first row always, skip the active column 
-        for (int row = 0; row < cofactor_matrix_size; row++) {
-          for (int column = 0; column < cofactor_matrix_size; column++) {
+        // Skip the first row always, so we start at 1 and iterate to matrix_size 
+        int cofactor_column = 0;
+        for (int row = 1; row < matrix_size; row++) {
+          for (int column = 0; column < matrix_size; column++) {
             if (column == cofactor_index) continue;
-
-            cofactor_matrix[row][column] = matrix[row+1][column];
+            cofactor_matrix[row - 1][cofactor_column++] = matrix[row][column];
           }
+          cofactor_column = 0;
         }
 
-        determinant += (Math.pow(-1, cofactor_index)) * cofModDet(modulo, cofactor_matrix);
+        // The determinant is the sum of the cofactor expansions:
+        //             -1 ^ (n)  *  COFactor  * Determinant of the Cofactor Matrix 
+        determinant += (Math.pow(-1, cofactor_index)) * matrix[0][cofactor_index] * cofModDet(modulo, cofactor_matrix);
       }
 
     }
 
-    return determinant % modulo; 
+    return Math.floorMod(determinant, modulo);
   }
-
-
 
 }
