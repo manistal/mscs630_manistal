@@ -114,3 +114,7 @@
     - Chapter 4 (the book thats not Stanoyevitch)
     - Learn about the different modes
         - ECB and CBC 
+
+
+
+
