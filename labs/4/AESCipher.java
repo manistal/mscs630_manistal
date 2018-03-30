@@ -4,9 +4,15 @@
  * @author Miguel Nistal 
  */
 
+ import java.util.Arrays;
+
 class AESCipher {
 
-  public static final char SBOX = {
+  /** 
+   * Static representation of of Rijndael SBox for AES
+   *  https://en.wikipedia.org/wiki/Rijndael_S-box 
+   */
+  public static final char[] AES_SBOX = {
       0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76,
       0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59, 0x47, 0xF0, 0xAD, 0xD4, 0xA2, 0xAF, 0x9C, 0xA4, 0x72, 0xC0,
       0xB7, 0xFD, 0x93, 0x26, 0x36, 0x3F, 0xF7, 0xCC, 0x34, 0xA5, 0xE5, 0xF1, 0x71, 0xD8, 0x31, 0x15,
@@ -24,16 +30,139 @@ class AESCipher {
       0xE1, 0xF8, 0x98, 0x11, 0x69, 0xD9, 0x8E, 0x94, 0x9B, 0x1E, 0x87, 0xE9, 0xCE, 0x55, 0x28, 0xDF,
       0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16
   };
+  
+  /** 
+   * Static representation of AES Key Scheduling
+   * https://en.wikipedia.org/wiki/Rijndael_key_schedule
+   */
+  public static final char[] AES_RCON = {
+    0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8, 0xab, 0x4d, 0x9a, 
+    0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97, 0x35, 0x6a, 0xd4, 0xb3, 0x7d, 0xfa, 0xef, 0xc5, 0x91, 0x39, 
+    0x72, 0xe4, 0xd3, 0xbd, 0x61, 0xc2, 0x9f, 0x25, 0x4a, 0x94, 0x33, 0x66, 0xcc, 0x83, 0x1d, 0x3a, 
+    0x74, 0xe8, 0xcb, 0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8, 
+    0xab, 0x4d, 0x9a, 0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97, 0x35, 0x6a, 0xd4, 0xb3, 0x7d, 0xfa, 0xef, 
+    0xc5, 0x91, 0x39, 0x72, 0xe4, 0xd3, 0xbd, 0x61, 0xc2, 0x9f, 0x25, 0x4a, 0x94, 0x33, 0x66, 0xcc, 
+    0x83, 0x1d, 0x3a, 0x74, 0xe8, 0xcb, 0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 
+    0x36, 0x6c, 0xd8, 0xab, 0x4d, 0x9a, 0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97, 0x35, 0x6a, 0xd4, 0xb3, 
+    0x7d, 0xfa, 0xef, 0xc5, 0x91, 0x39, 0x72, 0xe4, 0xd3, 0xbd, 0x61, 0xc2, 0x9f, 0x25, 0x4a, 0x94, 
+    0x33, 0x66, 0xcc, 0x83, 0x1d, 0x3a, 0x74, 0xe8, 0xcb, 0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 
+    0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8, 0xab, 0x4d, 0x9a, 0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97, 0x35, 
+    0x6a, 0xd4, 0xb3, 0x7d, 0xfa, 0xef, 0xc5, 0x91, 0x39, 0x72, 0xe4, 0xd3, 0xbd, 0x61, 0xc2, 0x9f, 
+    0x25, 0x4a, 0x94, 0x33, 0x66, 0xcc, 0x83, 0x1d, 0x3a, 0x74, 0xe8, 0xcb, 0x8d, 0x01, 0x02, 0x04, 
+    0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8, 0xab, 0x4d, 0x9a, 0x2f, 0x5e, 0xbc, 0x63, 
+    0xc6, 0x97, 0x35, 0x6a, 0xd4, 0xb3, 0x7d, 0xfa, 0xef, 0xc5, 0x91, 0x39, 0x72, 0xe4, 0xd3, 0xbd, 
+    0x61, 0xc2, 0x9f, 0x25, 0x4a, 0x94, 0x33, 0x66, 0xcc, 0x83, 0x1d, 0x3a, 0x74, 0xe8, 0xcb, 0x8d
+  };
 
-  static sBoxMe(String index) {
-    int hex_index = Integer.parseInt(index, 16);
-    return ;
+  /**
+   * Accessor to index into Rijndael SBox for AES based on string hex characters
+   * @param inHex String hexidecimal byte to be transformed 
+   * @return Char representation of resulting hex value (to be used as integer)
+   */
+  static int aesSBox(int inHex) {
+    return (int) AES_SBOX[inHex];
   }
+
+  /**
+   * Accessor to index into Rijndael key scheduling to get RCon
+   * @param round The round to retrieve the RCon for 
+   * @return Char representation of resulting hex value (to be used as integer)
+   */
+  static int aesRCon(int inRound) {
+    return (int) AES_RCON[inRound];
+  }
+
+  static int getByte(String inString, int index) {
+    // Ending and Starting indicies for Java substring
+    // *Note* Strings are made up of pairs of bytes, need to get two entries in the string
+    int start_index = index * 2;
+    int end_index = (index * 2) + 2;
+
+    // Adjust for bounds overflow, just in case 
+    if (start_index > inString.length()) start_index = inString.length();
+    if (end_index > inString.length()) end_index = inString.length();
+
+    // Grab the string and return the type converted to an 8 bit int
+    String byte_string = inString.substring(start_index, end_index);
+    return Integer.parseInt(byte_string, 16);
+  }
+
+  static void printMatrix(int[][] inMatrix) {
+    for (int row = 0; row < inMatrix.length; row++) {
+      for (int column = 0; column < inMatrix[row].length; column++) {
+        System.out.print(Integer.toHexString(inMatrix[row][column]) + " | ");
+      }
+      System.out.println();
+    }
+    System.out.println();
+  } 
 
   /** 
-   * Main expects input redirection for handling input
+   * Returns an 11 entry array of Strings representing the String hexidecimal representation of 
+   *  the AES round keys, based on an input string of hex representing the input AES Key
+   * @param inKey the String hexidecimal representation of an AES key 
+   * @return 11 Round Keys in String hexidecimal representation 
    */
-  public static void main(String[] args) {
+  static String[] aesRoundKeys(String inKey) {
+    int[][] key_matrix = new int[4][4];
+    int[][] result_matrix = new int[4][44];
 
+    // Construct Key Matrix by appending bytes in order down rows first
+    for (int idx = 0; idx < 16; idx++) {
+      //         ROW      Column - Iterate down rows first
+      key_matrix[idx % 4][idx / 4] = getByte(inKey, idx);
+    }
+
+    // Round 0 (SEED ROUND!)
+    for (int row = 0; row < 4; row++) {
+      for (int column = 0; column < 4; column++) {
+        result_matrix[row][column] = key_matrix[row][column];
+      }
+    }
+
+    // Other rounds 
+    for (int column = 4; column < 44; column++) {
+      // Current Round Index
+      int current_round = column / 4;
+
+      //  Whenever we start a new round, seed it with rcon/sbox
+      if ((column % 4) == 0) {
+        int[] temp_array = new int[4];
+        temp_array[0] = aesRCon(current_round) ^ aesSBox(result_matrix[1][column - 1]);
+        temp_array[1] = aesSBox(result_matrix[2][column - 1]);
+        temp_array[2] = aesSBox(result_matrix[3][column - 1]);
+        temp_array[3] = aesSBox(result_matrix[0][column - 1]);
+        for (int row = 0; row < 4; row++) {
+          result_matrix[row][column] = result_matrix[row][column - 4] ^ temp_array[row];
+        }
+      }
+      // Whenever we're not in a new round, just mix other stuff 
+      else {
+        for (int row = 0; row < 4; row++) {
+          result_matrix[row][column] = result_matrix[row][column - 4] ^ result_matrix[row][column - 1];
+        }
+      }
+    }
+
+    printMatrix(key_matrix);
+    printMatrix(result_matrix);
+
+    String[] results = new String[11];
+    for (int string_idx = 0; string_idx < 11; string_idx++) {
+      String hex_key = "";
+      for (int column = 0; column < 4; column++) {
+        for (int row = 0; row < 4; row++) {
+          int real_col = (string_idx * 4) + column;
+          int result_num = result_matrix[row][real_col];          
+          String result_hex = String.format("%02X", result_num);
+          hex_key += result_hex;
+        }
+      } 
+      System.out.println(hex_key);
+      results[string_idx] = hex_key;
+    }
+
+    return results;
   }
+
 }
