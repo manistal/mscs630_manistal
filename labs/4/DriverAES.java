@@ -15,7 +15,7 @@ class DriverAES {
     String user_key = input.nextLine();
     input.close();
 
-    String[] RoundKeys = AESCipher.aesRoundKeys(user_key);
+    String[] RoundKeys = AESCipher.AESRoundKeys(user_key);
     for (int index = 0; index < RoundKeys.length; index++) {
       System.out.println(RoundKeys[index]);
     }

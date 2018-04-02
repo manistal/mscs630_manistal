@@ -113,7 +113,7 @@ class AESCipher {
 
   /**
    * Util function to flatten Matrix result of Key Rounds 
-   * @param roundKeymatrix 4x11 matrix of round keys to flatten
+   * @param roundKeymatrix 4x44 matrix of round keys to flatten
    * @return               String[11] of Hex Round Keys
    */
   static String[] flattenRoundKeyMatrix(int[][] roundKeyMatrix) {
@@ -132,6 +132,11 @@ class AESCipher {
     return round_keys;
   }
 
+  /**
+   * Util function to flatten 4x4 block matrix 
+   * @param roundKeymatrix 4x4 matrix to flatten
+   * @return               String, hex representation of bytes
+   */
   static String flattenHexMatrix(int[][] hexMatrix) {
     String hex_result = "";
     for (int column = 0; column < MX_ORDER; column++) {
@@ -147,7 +152,7 @@ class AESCipher {
    * @param inKey the String hexidecimal representation of an AES key 
    * @return 11 Round Keys in String hexidecimal representation 
    */
-  static String[] aesRoundKeys(String inKey) {
+  static String[] AESRoundKeys(String inKey) {
     int[][] key_matrix = makeHexMatrix(inKey);
     int[][] round_matrix = new int[MX_ORDER][MX_ORDER * KEY_ROUNDS];
 
@@ -190,17 +195,35 @@ class AESCipher {
     return flattenRoundKeyMatrix(round_matrix);
   }
 
-  static String AESEncrypt(String pTextHex, String inKeyHex) {
-    int[][] key_matrix = makeHexMatrix(inKeyHex);
-    printMatrix(key_matrix);
+  static String AESEncryptBlock(String pTextHex, String inKeyHex) {
+    int[][] plaintext_matrix = makeHexMatrix(pTextHex);
+    String[] round_keys = AESRoundKeys(inKeyHex);
 
-    return new String();
+    // Before we start rounds
+    int[][] state_matrix = AESAddKey(plaintext_matrix, makeHexMatrix(round_keys[0]));
+
+    for (int round = 1; round < KEY_ROUNDS - 1; round++) {
+      state_matrix = AESNibbleSub(state_matrix);
+      state_matrix = AESShiftRow(state_matrix);
+      state_matrix = AESMixColumns(state_matrix);
+
+      int[][] round_key = makeHexMatrix(round_keys[round]);
+      state_matrix = AESAddKey(state_matrix, round_key);
+    }
+
+    state_matrix = AESNibbleSub(state_matrix);
+    state_matrix = AESShiftRow(state_matrix);
+
+    int[][] round_key = makeHexMatrix(round_keys[10]);
+    state_matrix = AESAddKey(state_matrix, round_key);
+
+    return flattenHexMatrix(state_matrix);
   }
 
 
   // AES FUNCTIONS (LAB 5)
   // ===================================
-  static int[][] AESStateXOR(int[][] sHex, int[][] keyHex) {
+  static int[][] AESAddKey(int[][] sHex, int[][] keyHex) {
     int[][] result_matrix = new int[MX_ORDER][MX_ORDER];
 
     for (int row = 0; row < MX_ORDER; row++) {
