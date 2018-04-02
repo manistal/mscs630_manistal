@@ -8,16 +8,17 @@ import java.util.Scanner;
 
 class DriverAES {
 
-  /** 
-   * Main expects input redirection for handling input
-   */
+  /** Driver to test Round Key generation for AES */
   public static void main(String[] args) {
+
     Scanner input = new Scanner(System.in);
     String user_key = input.nextLine();
-    System.out.println(user_key);
     input.close();
 
-    AESCipher MyCipher = new AESCipher();
-    String[] Result = MyCipher.aesRoundKeys(user_key);
+    String[] RoundKeys = AESCipher.aesRoundKeys(user_key);
+    for (int index = 0; index < RoundKeys.length; index++) {
+      System.out.println(RoundKeys[index]);
+    }
+
   }
 }
