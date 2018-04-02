@@ -18,6 +18,56 @@ class DriverAES {
 
     System.out.println(" Key: " + encryption_key);
     System.out.println(" P:   " + plaintext_block);
+    System.out.println();
 
+    //AESCipher.AESEncrypt(plaintext_block, encryption_key);
+    AESUnitTests();
   }
+
+  /** 
+   * Basic unit tests based on Lab 5 Instructions
+   */
+  static void AESUnitTests() {
+    // Test Values, expected values can be based on inputs since most are in Lab 5
+    String test_key_hex = "5468617473206D79204B756E67204675";
+
+    String add_key_test_hex = "54776F204F6E65204E696E652054776F";
+    String nibble_sub_test_hex = "001F0E543C4E08596E221B0B4774311A";
+    String shift_rows_test_hex = "63C0AB20EB2F30CB9F93AF2BA092C7A2";
+    String mix_column_test_hex = "632FAFA2EB93C7209F92ABCBA0C0302B";
+
+    String exp_result_addkey = nibble_sub_test_hex;
+    String exp_result_nsub = shift_rows_test_hex;
+    String exp_result_srows = mix_column_test_hex;
+    String exp_result_mcols = "BA75F47A84A48D32E88D060E1B407D5D";
+
+    // Test Add Key Operation in AES 
+    int[][] state_addkey_result = AESCipher.AESStateXOR(AESCipher.makeHexMatrix(add_key_test_hex), AESCipher.makeHexMatrix(test_key_hex));
+    Boolean state_addkey_correct = AESCipher.flattenHexMatrix(state_addkey_result).equals(exp_result_addkey);
+    System.out.println("State XOR: " + state_addkey_correct);
+    AESCipher.printMatrix(state_addkey_result);
+    System.out.println();
+    
+    // Test Nibble Sub Operation in AES 
+    int[][] nibble_sub_result = AESCipher.AESNibbleSub(AESCipher.makeHexMatrix(nibble_sub_test_hex));
+    Boolean state_nsub_correct = AESCipher.flattenHexMatrix(nibble_sub_result).equals(exp_result_nsub);
+    System.out.println("Nibble Sub: " + state_nsub_correct);
+    AESCipher.printMatrix(nibble_sub_result);
+    System.out.println();
+
+    // Test Shift Rows Operation in AES
+    int[][] shift_rows_result = AESCipher.AESShiftRow(AESCipher.makeHexMatrix(shift_rows_test_hex));
+    Boolean state_srows_correct = AESCipher.flattenHexMatrix(shift_rows_result).equals(exp_result_srows);
+    System.out.println("Shift Rows: " + state_srows_correct);
+    AESCipher.printMatrix(shift_rows_result);
+    System.out.println();
+
+    // Test Mix Column Operation in AES 
+    int[][] mix_column_result = AESCipher.AESMixColumns(AESCipher.makeHexMatrix(mix_column_test_hex));
+    Boolean state_mcols_correct = AESCipher.flattenHexMatrix(mix_column_result).equals(exp_result_mcols);
+    System.out.println("Mix Column: " + state_mcols_correct);
+    AESCipher.printMatrix(mix_column_result);
+    System.out.println();
+  }
+
 }

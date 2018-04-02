@@ -103,7 +103,7 @@ class AESCipher {
    *  @param inKey 128bit Hex String representing a key 
    *  @return      4x4 matrix of bytes of key, in *column-major* order
    */
-  static int[][] makeKeyMatrix(String inKey) {
+  static int[][] makeHexMatrix(String inKey) {
     int[][] key_matrix = new int[MX_ORDER][MX_ORDER];
     for (int idx = 0; idx < KEY_BYTES; idx++) {
       key_matrix[idx % MX_ORDER][idx / MX_ORDER] = getByte(inKey, idx);
@@ -132,13 +132,23 @@ class AESCipher {
     return round_keys;
   }
 
+  static String flattenHexMatrix(int[][] hexMatrix) {
+    String hex_result = "";
+    for (int column = 0; column < MX_ORDER; column++) {
+      for (int row = 0; row < MX_ORDER; row++) {
+        hex_result += String.format("%02X", hexMatrix[row][column]);
+      }
+    } 
+    return hex_result;
+  }
+
   /** 
    * Gets the 11 AES Round Keys as a Hex String Array 
    * @param inKey the String hexidecimal representation of an AES key 
    * @return 11 Round Keys in String hexidecimal representation 
    */
   static String[] aesRoundKeys(String inKey) {
-    int[][] key_matrix = makeKeyMatrix(inKey);
+    int[][] key_matrix = makeHexMatrix(inKey);
     int[][] round_matrix = new int[MX_ORDER][MX_ORDER * KEY_ROUNDS];
 
     // Iterate column by column for each column major matrix of round keys
@@ -180,6 +190,12 @@ class AESCipher {
     return flattenRoundKeyMatrix(round_matrix);
   }
 
+  static String AESEncrypt(String pTextHex, String inKeyHex) {
+    int[][] key_matrix = makeHexMatrix(inKeyHex);
+    printMatrix(key_matrix);
+
+    return new String();
+  }
 
 
   // AES FUNCTIONS (LAB 5)
@@ -196,35 +212,83 @@ class AESCipher {
     return result_matrix;
   }
 
-  static int[][] AESNibbleSub(int[][] inStateHex) {
+  static int[][] AESNibbleSub(int[][] inState) {
     int[][] result_matrix = new int[MX_ORDER][MX_ORDER];
 
     for (int row = 0; row < MX_ORDER; row++) {
       for (int column = 0; column < MX_ORDER; column++) {
-        result_matrix[row][column] = aesSBox(result_matrix[row][column]);
+        result_matrix[row][column] = aesSBox(inState[row][column]);
       }
     }
 
     return result_matrix;
   }
 
-  // *NOTE* Skip first row
-  static int[][] AESShiftRow(int[][] inStateHex) {
+  static int[][] AESShiftRow(int[][] inState) {
     int[][] result_matrix = new int[MX_ORDER][MX_ORDER];
 
     for (int row = 0; row < MX_ORDER; row++) {
       for (int column = 0; column < MX_ORDER; column++) {
-
-        if (row == 0) {
-          result_matrix[row][column] = result_matrix[row][column];
-        }
-        else {
-          int old_column = (column + 1) % MX_ORDER; // Rotate the column value, but wrap
-          result_matrix[row][column] = result_matrix[row][old_column];
-        }
-
+        int old_column = (column + row) % MX_ORDER; // Rotate the column value, but wrap
+        result_matrix[row][column] = inState[row][old_column];
       }
     }
+
+    return result_matrix;
+  }
+
+  static int AESGMult(int lhs, int rhs) {
+    int ret_value = 0;
+    Boolean lhs_high_bit = false;
+    Boolean rhs_low_bit = false;
+
+    for (int idx = 0; idx < 8; idx++) {
+      lhs_high_bit = ((lhs & 0x80) == 0x80);
+      rhs_low_bit = ((rhs & 0x01) == 0x01);
+
+      if (rhs_low_bit) {
+        ret_value ^= lhs;
+      } 
+      lhs <<= 1;
+
+      if (lhs_high_bit) {
+        lhs ^= 0x1B;
+      }
+      rhs >>= 1;
+    }
+
+    // Only dealing with bytes, wrap the result on 256 (1 Byte of data)
+    return Math.floorMod(ret_value, 256); 
+  }
+
+  static int[] AESMixColumn(int[] inCol) {
+    int[] result_column = new int[MX_ORDER];
+
+    result_column[0] = AESGMult(inCol[0], 2) ^ AESGMult(inCol[1], 3) ^ AESGMult(inCol[2], 1) ^ AESGMult(inCol[3], 1); 
+    result_column[1] = AESGMult(inCol[0], 1) ^ AESGMult(inCol[1], 2) ^ AESGMult(inCol[2], 3) ^ AESGMult(inCol[3], 1); 
+    result_column[2] = AESGMult(inCol[0], 1) ^ AESGMult(inCol[1], 1) ^ AESGMult(inCol[2], 2) ^ AESGMult(inCol[3], 3); 
+    result_column[3] = AESGMult(inCol[0], 3) ^ AESGMult(inCol[1], 1) ^ AESGMult(inCol[2], 1) ^ AESGMult(inCol[3], 2); 
+
+    return result_column;
+  }
+
+  static int[][] AESMixColumns(int[][] inState) {
+    int[][] result_matrix = new int[MX_ORDER][MX_ORDER]; 
+
+    for (int column = 0; column < MX_ORDER; column++) {
+      int[] column_array = new int[MX_ORDER];
+
+      for (int row = 0; row < MX_ORDER; row++) {
+        column_array[row] = inState[row][column];
+      }
+      
+      int[] mixed_column = AESMixColumn(column_array);
+
+      for (int row = 0; row < MX_ORDER; row++) {
+        result_matrix[row][column] = mixed_column[row];
+      }
+    }
+
     return result_matrix;
   }
 
@@ -235,7 +299,7 @@ class AESCipher {
   static void printMatrix(int[][] inMatrix) {
     for (int row = 0; row < inMatrix.length; row++) {
       for (int column = 0; column < inMatrix[row].length; column++) {
-        System.out.print(Integer.toHexString(inMatrix[row][column]) + " | ");
+        System.out.print(String.format("%02X", inMatrix[row][column]) + " | ");
       }
       System.out.println();
     }
