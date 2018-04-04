@@ -48,28 +48,28 @@ class DriverAES {
     int[][] state_addkey_result = AESCipher.AESAddKey(AESCipher.makeHexMatrix(add_key_test_hex), AESCipher.makeHexMatrix(test_key_hex));
     Boolean state_addkey_correct = AESCipher.flattenHexMatrix(state_addkey_result).equals(exp_result_addkey);
     System.out.println("State XOR: " + state_addkey_correct);
-    AESCipher.printMatrix(state_addkey_result);
+    printMatrix(state_addkey_result);
     System.out.println();
     
     // Test Nibble Sub Operation in AES 
     int[][] nibble_sub_result = AESCipher.AESNibbleSub(AESCipher.makeHexMatrix(nibble_sub_test_hex));
     Boolean state_nsub_correct = AESCipher.flattenHexMatrix(nibble_sub_result).equals(exp_result_nsub);
     System.out.println("Nibble Sub: " + state_nsub_correct);
-    AESCipher.printMatrix(nibble_sub_result);
+    printMatrix(nibble_sub_result);
     System.out.println();
 
     // Test Shift Rows Operation in AES
     int[][] shift_rows_result = AESCipher.AESShiftRow(AESCipher.makeHexMatrix(shift_rows_test_hex));
     Boolean state_srows_correct = AESCipher.flattenHexMatrix(shift_rows_result).equals(exp_result_srows);
     System.out.println("Shift Rows: " + state_srows_correct);
-    AESCipher.printMatrix(shift_rows_result);
+    printMatrix(shift_rows_result);
     System.out.println();
 
     // Test Mix Column Operation in AES 
     int[][] mix_column_result = AESCipher.AESMixColumns(AESCipher.makeHexMatrix(mix_column_test_hex));
     Boolean state_mcols_correct = AESCipher.flattenHexMatrix(mix_column_result).equals(exp_result_mcols);
     System.out.println("Mix Column: " + state_mcols_correct);
-    AESCipher.printMatrix(mix_column_result);
+    printMatrix(mix_column_result);
     System.out.println();
 
     // Test Full Encryption of a Block
@@ -78,5 +78,16 @@ class DriverAES {
     System.out.println("AES Cipher: " + aes_correct);
     System.out.println(cipher_result);
   }
+
+  /** *DEBUG* Uses STDOUT To print matrix */
+  static void printMatrix(int[][] inMatrix) {
+    for (int row = 0; row < inMatrix.length; row++) {
+      for (int column = 0; column < inMatrix[row].length; column++) {
+        System.out.print(String.format("%02X", inMatrix[row][column]) + " | ");
+      }
+      System.out.println();
+    }
+    System.out.println();
+  } 
 
 }

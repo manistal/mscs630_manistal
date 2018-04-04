@@ -1,5 +1,5 @@
 /** 
- * Implementation of Lab 4
+ * Implementation of Lab 4/5
  * Implementation of AES128 encryption cipher 
  * @author Miguel Nistal 
  */
@@ -100,13 +100,13 @@ class AESCipher {
 
   /** 
    * Construct 128Bit Column Major Key Matrix
-   *  @param inKey 128bit Hex String representing a key 
-   *  @return      4x4 matrix of bytes of key, in *column-major* order
+   *  @param inHexString 128bit Hex String representing a key 
+   *  @return 4x4 matrix of bytes of key, in *column-major* order
    */
-  static int[][] makeHexMatrix(String inKey) {
+  static int[][] makeHexMatrix(String inHexString) {
     int[][] key_matrix = new int[MX_ORDER][MX_ORDER];
     for (int idx = 0; idx < KEY_BYTES; idx++) {
-      key_matrix[idx % MX_ORDER][idx / MX_ORDER] = getByte(inKey, idx);
+      key_matrix[idx % MX_ORDER][idx / MX_ORDER] = getByte(inHexString, idx);
     }
     return key_matrix;
   }
@@ -195,46 +195,29 @@ class AESCipher {
     return flattenRoundKeyMatrix(round_matrix);
   }
 
-  static String AESEncryptBlock(String pTextHex, String inKeyHex) {
-    int[][] plaintext_matrix = makeHexMatrix(pTextHex);
-    String[] round_keys = AESRoundKeys(inKeyHex);
-
-    // Before we start rounds
-    int[][] state_matrix = AESAddKey(plaintext_matrix, makeHexMatrix(round_keys[0]));
-
-    for (int round = 1; round < KEY_ROUNDS - 1; round++) {
-      state_matrix = AESNibbleSub(state_matrix);
-      state_matrix = AESShiftRow(state_matrix);
-      state_matrix = AESMixColumns(state_matrix);
-
-      int[][] round_key = makeHexMatrix(round_keys[round]);
-      state_matrix = AESAddKey(state_matrix, round_key);
-    }
-
-    state_matrix = AESNibbleSub(state_matrix);
-    state_matrix = AESShiftRow(state_matrix);
-
-    int[][] round_key = makeHexMatrix(round_keys[10]);
-    state_matrix = AESAddKey(state_matrix, round_key);
-
-    return flattenHexMatrix(state_matrix);
-  }
-
-
-  // AES FUNCTIONS (LAB 5)
-  // ===================================
-  static int[][] AESAddKey(int[][] sHex, int[][] keyHex) {
+  /**
+   * Function to xor the content of the state matrix and a key matrix
+   * @param inState 4x4 matrix of integer bytes
+   * @param inKey   4x4 matrix of integer bytes
+   * @return 4x4 matrix of integer bytes, new state 
+   */
+  static int[][] AESAddKey(int[][] inState, int[][] inKey) {
     int[][] result_matrix = new int[MX_ORDER][MX_ORDER];
 
     for (int row = 0; row < MX_ORDER; row++) {
       for (int column = 0; column < MX_ORDER; column++) {
-        result_matrix[row][column] = sHex[row][column] ^ keyHex[row][column];
+        result_matrix[row][column] = inState[row][column] ^ inKey[row][column];
       }
     }
 
     return result_matrix;
   }
 
+  /**
+   * Function to do SBox Substitution on bytes in tstate matrix
+   * @param inState 4x4 matrix of integer bytes
+   * @return 4x4 matrix of integer bytes, new state 
+   */
   static int[][] AESNibbleSub(int[][] inState) {
     int[][] result_matrix = new int[MX_ORDER][MX_ORDER];
 
@@ -247,12 +230,18 @@ class AESCipher {
     return result_matrix;
   }
 
+  /**
+   * Function to do the AES Circular Byte Shift 
+   * @param inState 4x4 matrix of integer bytes
+   * @return 4x4 matrix of integer bytes, new state 
+   */
   static int[][] AESShiftRow(int[][] inState) {
     int[][] result_matrix = new int[MX_ORDER][MX_ORDER];
 
     for (int row = 0; row < MX_ORDER; row++) {
       for (int column = 0; column < MX_ORDER; column++) {
-        int old_column = (column + row) % MX_ORDER; // Rotate the column value, but wrap
+        // Circular shift along columns
+        int old_column = (column + row) % MX_ORDER; 
         result_matrix[row][column] = inState[row][old_column];
       }
     }
@@ -260,6 +249,13 @@ class AESCipher {
     return result_matrix;
   }
 
+  /**
+   * Galois Field (256) Multiplication of two Bytes
+   * https://en.wikipedia.org/wiki/Rijndael_MixColumns
+   * @param lhs Left hand side byte
+   * @param rhs Right hand side byte
+   * @return lhs * rhs in Rijndael galois field 
+   */
   static int AESGMult(int lhs, int rhs) {
     int ret_value = 0;
     Boolean lhs_high_bit = false;
@@ -284,6 +280,12 @@ class AESCipher {
     return Math.floorMod(ret_value, 256); 
   }
 
+  /**
+   * Performs Rjindael column mixing (multiply column with circulant matrix)
+   * Galosian multiplication implemented as function, addition is  XOR
+   * @param inCol 4 entry byte array representing a column of the state matrix
+   * @return  4 entry byte array of mixed column 
+   */
   static int[] AESMixColumn(int[] inCol) {
     int[] result_column = new int[MX_ORDER];
 
@@ -295,6 +297,12 @@ class AESCipher {
     return result_column;
   }
 
+  /**
+   * Wrapper around Rjindael column mixing function 
+   *  Need a way to extract columns as an array for mixing
+   * @param inState 4x4 matrix of integer bytes 
+   * @return 4x4 matrix of integer bytes, shaken and stirred
+   */
   static int[][] AESMixColumns(int[][] inState) {
     int[][] result_matrix = new int[MX_ORDER][MX_ORDER]; 
 
@@ -315,18 +323,43 @@ class AESCipher {
     return result_matrix;
   }
 
-  // END AES FUNCTIONS (LAB 5)
-  // ===================================
+  /**
+   * Implements 128 Bit AES Encryption Algorithm 
+   * @param pTextHex 128 bit string of plaintext bytes as hex
+   * @param inKeyHex 128 bit string of key bytes as hex
+   * @return 128 bit Ciphertext string bytes as hex
+   */
+  static String AESEncryptBlock(String pTextHex, String inKeyHex) {
 
-  /** *DEBUG* Uses STDOUT To print matrix */
-  static void printMatrix(int[][] inMatrix) {
-    for (int row = 0; row < inMatrix.length; row++) {
-      for (int column = 0; column < inMatrix[row].length; column++) {
-        System.out.print(String.format("%02X", inMatrix[row][column]) + " | ");
-      }
-      System.out.println();
+    // Calculate 11 Round Keys and Construct Plaintext Byte Matrix
+    String[] round_keys = AESRoundKeys(inKeyHex);
+    int[][] plaintext_matrix = makeHexMatrix(pTextHex);
+
+
+    // Step 1) Use round 0 key to initialize state matrix via AddKey
+    int[][] round_key = makeHexMatrix(round_keys[0]);
+    int[][] state_matrix = AESAddKey(plaintext_matrix, round_key);
+
+    // Step 2) Use round keys 1-9 with Rjindael Matrix Ops 
+    for (int round = 1; round < KEY_ROUNDS - 1; round++) {
+      // Construct matrix for this rounds key
+      round_key = makeHexMatrix(round_keys[round]);
+
+      // Perform Rjindael cipher steps 
+      state_matrix = AESNibbleSub(state_matrix);
+      state_matrix = AESShiftRow(state_matrix);
+      state_matrix = AESMixColumns(state_matrix);
+      state_matrix = AESAddKey(state_matrix, round_key);
     }
-    System.out.println();
-  } 
+
+    // Step 3) Last round, skip column mixing 
+    round_key = makeHexMatrix(round_keys[10]);
+    state_matrix = AESNibbleSub(state_matrix);
+    state_matrix = AESShiftRow(state_matrix);
+    state_matrix = AESAddKey(state_matrix, round_key);
+
+    // Resultant state matrix is integer bytes, flatten to string
+    return flattenHexMatrix(state_matrix);
+  }
 
 }
