@@ -21,6 +21,8 @@ class DriverAES {
 
     String result = AESCipher.AESEncryptBlock(plaintext_block, encryption_key);
     System.out.println(result);
+
+    AESUnitTests();
   }
 
   /** 
@@ -75,6 +77,47 @@ class DriverAES {
     Boolean aes_correct = cipher_result.equals(exp_ciphertext);
     System.out.println("AES Cipher: " + aes_correct);
     System.out.println(cipher_result);
+    System.out.println();
+
+    // Online test vector samples:
+    String aes_result = "";
+    Boolean result_correct = false;
+
+    String KEY1 = "2B7E151628AED2A6ABF7158809CF4F3C";
+    String PLAIN1 = "6BC1BEE22E409F96E93D7E117393172A";
+    String CIPHER1 = "3AD77BB40D7A3660A89ECAF32466EF97";
+    aes_result = AESCipher.AESEncryptBlock(PLAIN1, KEY1);
+    result_correct = aes_result.equals(CIPHER1);
+    System.out.println("OnlineTest1: " + result_correct);
+    System.out.println(aes_result);
+    System.out.println();
+
+    String KEY2 = "2B7E151628AED2A6ABF7158809CF4F3C";
+    String PLAIN2 = "AE2D8A571E03AC9C9EB76FAC45AF8E51";
+    String CIPHER2 = "F5D3D58503B9699DE785895A96FDBAAF";
+    aes_result = AESCipher.AESEncryptBlock(PLAIN2, KEY2);
+    result_correct = aes_result.equals(CIPHER2);
+    System.out.println("OnlineTest2: " + result_correct);
+    System.out.println(aes_result);
+    System.out.println();
+
+    String KEY3 = "2B7E151628AED2A6ABF7158809CF4F3C";
+    String PLAIN3 = "30C81C46A35CE411E5FBC1191A0A52EF";
+    String CIPHER3 = "43B1CD7F598ECE23881B00E3ED030688";
+    aes_result = AESCipher.AESEncryptBlock(PLAIN3, KEY3);
+    result_correct = aes_result.equals(CIPHER3);
+    System.out.println("OnlineTest3: " + result_correct);
+    System.out.println(aes_result);
+    System.out.println();
+
+    String KEY4 = "2B7E151628AED2A6ABF7158809CF4F3C";
+    String PLAIN4 = "F69F2445DF4F9B17AD2B417BE66C3710";
+    String CIPHER4 = "7B0C785E27E8AD3F8223207104725DD4";
+    aes_result = AESCipher.AESEncryptBlock(PLAIN4, KEY4);
+    result_correct = aes_result.equals(CIPHER4);
+    System.out.println("OnlineTest4: " + result_correct);
+    System.out.println(aes_result);
+    System.out.println();
   }
 
   /** *DEBUG* Uses STDOUT To print matrix */
