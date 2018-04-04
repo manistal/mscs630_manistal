@@ -22,7 +22,7 @@ class DriverAES {
     String result = AESCipher.AESEncryptBlock(plaintext_block, encryption_key);
     System.out.println(result);
 
-    AESUnitTests();
+    //AESUnitTests();
   }
 
   /** 
