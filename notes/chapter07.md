@@ -80,3 +80,67 @@
 - An example MAC would be returning the final ciphertext from a CBC mode block cipher 
     - Because the final ciphertext is dependant on the entire file in CBC mode, that ciphertext is unique to the file as a whole
 
+## Hashing  (Chapter 05 Ferguson)
+
+- Fundamentals :
+    - Hashing Table
+    - Hash Function 
+    - Collisions 
+
+
+- Hash Tables
+    - Algorithms behind storing data efficiently
+        - Constant time in the average case
+        - O(N) memory usage 
+
+    - Structure 
+        - table size
+        - mapping of key -> value 
+
+- Hash Function 
+    - Always of the form : 
+        `hash = hashFunc(Key, TableSize)`
+    - Load Factor
+        - Represented by Lambda
+        -  `lam = #items in table / table size`
+
+    - Should hash the entire key (subsets of keys can match)
+
+- Collision
+    - When a hash function returns the same value for two keys
+    - A good hash system will have no collisions 
+    - Load Factor (lambda)  has a positive correlation with collisions
+        - Recommended resize at 0.25
+        - Python uses ~.67 
+
+    - How to deal with collisions:
+        - Seperate Chaining
+            - Allows multiple values in a single hash slot
+            - Implemented like a hash map of linked lists
+            - Lookups are Hash -> iterate 
+            - Causes hash lookups to be in O(n)
+
+        - Open Addressing (aka Probing)
+            - Extends existing hash functions 
+                `return hash(key, ts) + f(i)`
+            - where i is the probing attempt 
+            - `f(0) = 0` no collisions yet, unmodified 
+
+            - Linear Probing : `f(i) = i`
+            - Quadratic Probing : `f(i) = i ** 2` 
+
+        - Double hashing    
+            - Reduces chance of collision by a multiplicative factor
+
+
+## Real Hash Functions (Ferguson Ch05)
+
+- Real hash functions are tough
+    - All options are pretty much SHA family
+    - SHA1, SHA2, SHA2048, SHA1024 
+
+- MD5, created by one of the authors of RSA 
+    
+## SHA3 Kaccak!
+
+- Sponge Function 
