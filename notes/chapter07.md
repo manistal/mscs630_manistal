@@ -144,3 +144,9 @@
 ## SHA3 Kaccak!
 
 - Sponge Function 
+
+
+## The Wang Effect
+
+- Before 2005 MD4, MD5, and SHA had theoretical attacks
+- Once the competition started, attacks were rapidly refined 
