@@ -1,4 +1,4 @@
-40 pts
+50 pts
 
 Miguel,
 
@@ -12,6 +12,8 @@ Functionality
 Style Check
 
 - All programs follow the style guidelines. Good job!
+
+No templated Matrix class? Bummer... -1pt
 
 
 Peace,
