@@ -1,0 +1,8 @@
+Text to be encrypted after padding is
+cddeeff0011223355446671010101010
+Encrypted message is
+e5cfb47bd95e73359047ff48d0cabd87
+Number of bits to be padded are 
+10
+Decrypted message is
+cddeeff001122335544667
